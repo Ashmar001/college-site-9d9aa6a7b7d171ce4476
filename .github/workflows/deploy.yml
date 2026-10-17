@@ -1,4 +1,6 @@
+```yaml
 name: Deploy college site
+
 on:
   push:
     branches: [main]
@@ -7,6 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -15,7 +18,7 @@ jobs:
           REDEPLOYED=false
           if [ "${{ github.run_number }}" -ge 2 ]; then REDEPLOYED=true; fi
           printf '{"deployed_by":"github-actions","sha":"%s","run":%s,"redeployed":%s}\n' \
-            "${{ github.sha }}" "${{ github.run_number }}" "$REDEPLOYED" > site/build.json
+            "${{ github.sha }}" "${{ github.run_number }}" "$REDEPLOYED" > Downloads/site/build.json
 
       - name: Upload to Azure Storage
         env:
@@ -24,7 +27,10 @@ jobs:
           az storage blob upload-batch \
             --account-name "${{ vars.STORAGE_ACCOUNT }}" \
             --sas-token "$SAS" \
-            --destination site --source site --overwrite \
+            --destination site \
+            --source Downloads/site \
+            --overwrite \
             --content-cache-control "no-cache" \
             --output none
           echo "Site: https://${{ vars.STORAGE_ACCOUNT }}.blob.core.windows.net/site/index.html"
+```
